@@ -60,92 +60,36 @@
             border: 1px solid var(--accent);
         }
 
-        /* Glass Popup Effect */
+        /* Glass Popup Effect - macOS Dock Style */
         .glass-popup {
             position: fixed;
-            width: 300px;
-            height: 180px;
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(40px) saturate(180%);
-            -webkit-backdrop-filter: blur(40px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
             pointer-events: none;
             z-index: 9000;
             opacity: 0;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            transform: translateY(10px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 
-                0 0 60px rgba(255, 255, 255, 0.1),
-                inset 0 0 60px rgba(255, 255, 255, 0.05);
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .glass-popup.active {
             opacity: 1;
-            transform: scale(1) translate(20px, 20px);
-        }
-
-        .glass-popup::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-            transition: left 0.8s ease;
-        }
-
-        .glass-popup:hover::before {
-            left: 100%;
-        }
-
-        .glass-popup-inner {
-            text-align: center;
-            padding: 40px;
-            transform: translate(20px, 20px);
-        }
-
-        .glass-popup-icon {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 20px;
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: iconPulse 2s ease infinite;
-        }
-
-        @keyframes iconPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .glass-popup-icon svg {
-            width: 28px;
-            height: 28px;
-            stroke: rgba(255, 255, 255, 0.9);
+            transform: translateY(0) scale(1);
         }
 
         .glass-popup-text {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: rgba(255, 255, 255, 0.95);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-
-        .glass-popup-subtext {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.5);
-            margin-top: 8px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            white-space: nowrap;
+            letter-spacing: 0.5px;
         }
 
         .glass-ring {
@@ -923,15 +867,7 @@
 <body>
     <div class="cursor"></div>
     <div class="glass-popup" id="glassPopup">
-        <div class="glass-popup-inner">
-            <div class="glass-popup-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-            </div>
-            <div class="glass-popup-text" id="glassPopupText">Explore</div>
-            <div class="glass-popup-subtext">Click to interact</div>
-        </div>
+        <div class="glass-popup-text" id="glassPopupText">Open</div>
     </div>
     <div class="glass-ring" id="glassRing"></div>
 
@@ -1452,59 +1388,78 @@
             alert('Thank you for your message! I will get back to you soon.');
         });
 
-        // Glass Popup Effect
+// Glass Popup Effect - Smooth macOS Dock Style
         const glassPopup = document.getElementById('glassPopup');
         const glassPopupText = document.getElementById('glassPopupText');
-        const glassRing = document.getElementById('glassRing');
         let glassActive = false;
-        let clickTimeout = null;
 
-        const clickLabels = {
-            'link': 'Navigate',
-            'button': 'Open',
-            'project': 'View Project',
-            'service': 'Learn More',
-            'form': 'Submit',
-            'cta': 'Take Action',
-            'text': 'Read More',
-            'image': 'View'
-        };
-
-        function showGlassPopup(e, type = 'link') {
-            const x = e.clientX + 50;
-            const y = e.clientY + 50;
+        function showGlassPopup(e, text) {
+            const x = e.clientX + 20;
+            const y = e.clientY - 50;
             
-            glassPopupText.textContent = clickLabels[type] || 'Explore';
+            glassPopupText.textContent = text;
             glassPopup.style.left = x + 'px';
             glassPopup.style.top = y + 'px';
-            glassPopup.style.opacity = '1';
-            glassPopup.style.transform = 'scale(1) translate(20px, 20px)';
-            
-            glassRing.style.width = '80px';
-            glassRing.style.height = '80px';
-            glassRing.style.left = x + 'px';
-            glassRing.style.top = y + 'px';
-            glassRing.classList.remove('animate');
-            void glassRing.offsetWidth;
-            glassRing.classList.add('animate');
-            
+            glassPopup.classList.add('active');
             glassActive = true;
-            e.preventDefault();
         }
 
         function hideGlassPopup() {
-            if (clickTimeout) clearTimeout(clickTimeout);
-            glassPopup.style.opacity = '0';
-            glassPopup.style.transform = 'scale(0.9) translate(20px, 20px)';
+            glassPopup.classList.remove('active');
             glassActive = false;
         }
 
-        // Track mouse
-        let mouseX = 0, mouseY = 0;
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
+        // Show on any clickable element
+        const interactiveSelectors = 'a, button, .hero-cta, .submit-btn, .nav-cta';
+        
+        document.querySelectorAll(interactiveSelectors).forEach(el => {
+            el.addEventListener('mouseenter', (e) => {
+                let text = 'Open';
+                if (el.classList.contains('hero-cta') || el.classList.contains('submit-btn')) text = 'Start';
+                else if (el.tagName === 'A') text = el.getAttribute('href')?.replace('#', '') || 'Navigate';
+                showGlassPopup(e, text);
+            });
+            
+            el.addEventListener('mousemove', (e) => {
+                const x = e.clientX + 20;
+                const y = e.clientY - 50;
+                glassPopup.style.left = x + 'px';
+                glassPopup.style.top = y + 'px';
+            });
+            
+            el.addEventListener('mouseleave', hideGlassPopup);
         });
+
+        // Click effect
+        document.addEventListener('click', (e) => {
+            // Create ripple
+            const ripple = document.createElement('div');
+            ripple.style.cssText = `
+                position: fixed;
+                left: ${e.clientX}px;
+                top: ${e.clientY}px;
+                width: 20px;
+                height: 20px;
+                border: 2px solid rgba(255,255,255,0.6);
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 9999;
+                transform: translate(-50%, -50%);
+                animation: rippleExpand 0.6s ease forwards;
+            `;
+            document.body.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes rippleExpand {
+                0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+                100% { transform: translate(-50%, -50%) scale(4); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
 
         // Show glass popup on any interactive element hover
         const interactiveElements = 'a, button, .project-card, .service-card, input, textarea, select, .nav-links a, .footer-links a, .hero-cta, .submit-btn, h1, h2, h3, p, .service-card h3, .service-card p, .about-content p, .project-title, .project-category';
