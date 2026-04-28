@@ -60,6 +60,103 @@
             border: 1px solid var(--accent);
         }
 
+        /* Glass Popup Effect */
+        .glass-popup {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            pointer-events: none;
+            z-index: 9000;
+            transform: scale(0);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .glass-popup.active {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .glass-popup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.6s ease;
+        }
+
+        .glass-popup:hover::before {
+            left: 100%;
+        }
+
+        .glass-popup-inner {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .glass-popup-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .glass-popup-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: rgba(255, 255, 255, 0.7);
+        }
+
+        .glass-popup-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .glass-ring {
+            position: fixed;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 8999;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+
+        .glass-ring.animate {
+            animation: glassRingExpand 1s ease forwards;
+        }
+
+        @keyframes glassRingExpand {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(4);
+                opacity: 0;
+            }
+        }
+
         /* Loading Screen */
         .loader {
             position: fixed;
@@ -807,6 +904,17 @@
 </head>
 <body>
     <div class="cursor"></div>
+    <div class="glass-popup" id="glassPopup">
+        <div class="glass-popup-inner">
+            <div class="glass-popup-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </div>
+            <div class="glass-popup-text" id="glassPopupText">Click</div>
+        </div>
+    </div>
+    <div class="glass-ring" id="glassRing"></div>
 
     <div class="loader">
         <div class="loader-logo">Ayush Bhatnagar</div>
@@ -1323,6 +1431,92 @@
         document.querySelector('.contact-form').addEventListener('submit', (e) => {
             e.preventDefault();
             alert('Thank you for your message! I will get back to you soon.');
+        });
+
+        // Glass Popup Effect
+        const glassPopup = document.getElementById('glassPopup');
+        const glassPopupText = document.getElementById('glassPopupText');
+        const glassRing = document.getElementById('glassRing');
+        let glassActive = false;
+        let clickTimeout = null;
+
+        const clickLabels = {
+            'default': 'Click',
+            'nav': 'Navigate',
+            'button': 'Open Link',
+            'project': 'View Project',
+            'service': 'View Details',
+            'form': 'Submit',
+            'social': 'Follow'
+        };
+
+        function showGlassPopup(x, y, type = 'default') {
+            glassPopupText.textContent = clickLabels[type] || clickLabels['default'];
+            glassPopup.style.left = x + 'px';
+            glassPopup.style.top = y + 'px';
+            glassPopup.style.transform = 'translate(-50%, -50%) scale(1)';
+            
+            glassRing.style.left = x + 'px';
+            glassRing.style.top = y + 'px';
+            glassRing.classList.remove('animate');
+            void glassRing.offsetWidth;
+            glassRing.classList.add('animate');
+            
+            glassActive = true;
+        }
+
+        function hideGlassPopup() {
+            if (clickTimeout) clearTimeout(clickTimeout);
+            glassPopup.style.transform = 'translate(-50%, -50%) scale(0)';
+            glassActive = false;
+        }
+
+        // Track mouse for glass popup positioning
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            if (!glassActive) {
+                glassPopup.style.left = mouseX + 'px';
+                glassPopup.style.top = mouseY + 'px';
+            }
+        });
+
+        // Show glass popup on clickable elements
+        document.querySelectorAll('a, button, .project-card, .service-card, input, textarea, select').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                const rect = el.getBoundingClientRect();
+                showGlassPopup(rect.x + rect.width / 2, rect.y + rect.height / 2, 
+                    el.classList.contains('project-card') ? 'project' :
+                    el.classList.contains('service-card') ? 'service' :
+                    el.tagName === 'A' ? 'nav' :
+                    el.tagName === 'BUTTON' ? 'button' :
+                    el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' ? 'form' : 'default');
+            });
+            
+            el.addEventListener('mouseleave', hideGlassPopup);
+        });
+
+        // Show glass popup on click
+        document.addEventListener('click', (e) => {
+            if (glassActive) {
+                showGlassPopup(e.clientX, e.clientY, 'button');
+                clickTimeout = setTimeout(hideGlassPopup, 800);
+            }
+        });
+
+        // Initialize glass popup position
+        document.addEventListener('DOMContentLoaded', () => {
+            glassPopup.style.left = '50%';
+            glassPopup.style.top = '50%';
+            glassPopup.style.transform = 'translate(-50%, -50%) scale(0)';
+            
+            // Show on first mouse move
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }, { once: true });
         });
     </script>
 </body>
