@@ -60,23 +60,24 @@
             border: 1px solid var(--accent);
         }
 
-        /* Glass Popup Effect - macOS Dock Style */
+        /* Glass Popup Effect - Big & Smooth */
         .glass-popup {
             position: fixed;
-            padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(30px) saturate(200%);
-            -webkit-backdrop-filter: blur(30px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 16px;
+            padding: 20px 40px;
+            background: rgba(30, 30, 30, 0.7);
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
             pointer-events: none;
             z-index: 9000;
             opacity: 0;
-            transform: translateY(10px) scale(0.95);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(20px) scale(0.9);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                0 0 1px rgba(255, 255, 255, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
         .glass-popup.active {
@@ -85,11 +86,26 @@
         }
 
         .glass-popup-text {
-            font-size: 13px;
-            font-weight: 600;
+            font-family: 'Manrope', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
             color: rgba(255, 255, 255, 0.95);
             white-space: nowrap;
-            letter-spacing: 0.5px;
+            text-align: center;
+        }
+
+        .glass-popup-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .glass-popup-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: rgba(255, 255, 255, 0.7);
+            stroke-width: 2;
         }
 
         .glass-ring {
@@ -867,9 +883,13 @@
 <body>
     <div class="cursor"></div>
     <div class="glass-popup" id="glassPopup">
-        <div class="glass-popup-text" id="glassPopupText">Open</div>
+        <div class="glass-popup-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+        </div>
+        <div class="glass-popup-text" id="glassPopupText">Explore</div>
     </div>
-    <div class="glass-ring" id="glassRing"></div>
 
     <div class="loader">
         <div class="loader-logo">Ayush Bhatnagar</div>
@@ -1388,14 +1408,15 @@
             alert('Thank you for your message! I will get back to you soon.');
         });
 
-// Glass Popup Effect - Smooth macOS Dock Style
+// Glass Popup Effect - Big & Smooth
         const glassPopup = document.getElementById('glassPopup');
         const glassPopupText = document.getElementById('glassPopupText');
         let glassActive = false;
+        let currentTarget = null;
 
         function showGlassPopup(e, text) {
-            const x = e.clientX + 20;
-            const y = e.clientY - 50;
+            const x = e.clientX - 60;
+            const y = e.clientY + 30;
             
             glassPopupText.textContent = text;
             glassPopup.style.left = x + 'px';
@@ -1407,56 +1428,79 @@
         function hideGlassPopup() {
             glassPopup.classList.remove('active');
             glassActive = false;
+            currentTarget = null;
         }
 
-        // Show on any clickable element
-        const interactiveSelectors = 'a, button, .hero-cta, .submit-btn, .nav-cta';
+        // Show on any clickable/draggable element
+        const interactiveSelectors = [
+            'a', 'button', 
+            '.hero-cta', '.submit-btn', '.nav-cta', '.nav-links a',
+            '.project-card', '.service-card',
+            '.footer-links a',
+            '.testimonial-dot'
+        ];
         
-        document.querySelectorAll(interactiveSelectors).forEach(el => {
+        document.querySelectorAll(interactiveSelectors.join(',')).forEach(el => {
             el.addEventListener('mouseenter', (e) => {
-                let text = 'Open';
-                if (el.classList.contains('hero-cta') || el.classList.contains('submit-btn')) text = 'Start';
-                else if (el.tagName === 'A') text = el.getAttribute('href')?.replace('#', '') || 'Navigate';
+                currentTarget = el;
+                let text = 'Explore';
+                
+                if (el.classList.contains('hero-cta') || el.classList.contains('submit-btn')) text = 'Start Project';
+                else if (el.classList.contains('project-card')) text = 'View Project';
+                else if (el.classList.contains('service-card')) text = 'Learn More';
+                else if (el.classList.contains('nav-links') || el.classList.contains('footer-links')) text = 'Go to Page';
+                else if (el.classList.contains('testimonial-dot')) text = 'View Review';
+                else if (el.tagName === 'A') {
+                    const href = el.getAttribute('href');
+                    if (href?.startsWith('#')) text = 'Scroll to ' + href.replace('#', '');
+                    else if (href?.startsWith('http')) text = 'Open Link';
+                    else text = 'Navigate';
+                } else if (el.tagName === 'BUTTON') text = 'Click';
+                
                 showGlassPopup(e, text);
             });
             
             el.addEventListener('mousemove', (e) => {
-                const x = e.clientX + 20;
-                const y = e.clientY - 50;
+                if (!glassActive) return;
+                const x = e.clientX - 60;
+                const y = e.clientY + 30;
                 glassPopup.style.left = x + 'px';
                 glassPopup.style.top = y + 'px';
             });
             
-            el.addEventListener('mouseleave', hideGlassPopup);
+            el.addEventListener('mouseleave', () => {
+                if (currentTarget === el) {
+                    hideGlassPopup();
+                }
+            });
         });
 
-        // Click effect
+        // Click ripple effect
         document.addEventListener('click', (e) => {
-            // Create ripple
             const ripple = document.createElement('div');
             ripple.style.cssText = `
                 position: fixed;
                 left: ${e.clientX}px;
                 top: ${e.clientY}px;
-                width: 20px;
-                height: 20px;
-                border: 2px solid rgba(255,255,255,0.6);
+                width: 60px;
+                height: 60px;
+                border: 2px solid rgba(255,255,255,0.5);
                 border-radius: 50%;
                 pointer-events: none;
                 z-index: 9999;
                 transform: translate(-50%, -50%);
-                animation: rippleExpand 0.6s ease forwards;
+                animation: rippleExpand 0.8s ease forwards;
             `;
             document.body.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 600);
+            setTimeout(() => ripple.remove(), 800);
         });
 
         // Add ripple animation
         const style = document.createElement('style');
         style.textContent = `
             @keyframes rippleExpand {
-                0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-                100% { transform: translate(-50%, -50%) scale(4); opacity: 0; }
+                0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+                100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
             }
         `;
         document.head.appendChild(style);
