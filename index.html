@@ -63,39 +63,40 @@
         /* Glass Popup Effect */
         .glass-popup {
             position: fixed;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
+            width: 300px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
             pointer-events: none;
             z-index: 9000;
-            transform: scale(0);
             opacity: 0;
-            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            box-shadow: 
+                0 0 60px rgba(255, 255, 255, 0.1),
+                inset 0 0 60px rgba(255, 255, 255, 0.05);
         }
 
         .glass-popup.active {
-            transform: scale(1);
             opacity: 1;
+            transform: scale(1) translate(20px, 20px);
         }
 
         .glass-popup::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -50%;
-            width: 50%;
+            left: -100%;
+            width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transform: skewX(-20deg);
-            transition: left 0.6s ease;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.8s ease;
         }
 
         .glass-popup:hover::before {
@@ -104,37 +105,54 @@
 
         .glass-popup-inner {
             text-align: center;
-            padding: 30px;
+            padding: 40px;
+            transform: translate(20px, 20px);
         }
 
         .glass-popup-icon {
-            width: 50px;
-            height: 50px;
-            margin: 0 auto 15px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            animation: iconPulse 2s ease infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .glass-popup-icon svg {
-            width: 24px;
-            height: 24px;
-            stroke: rgba(255, 255, 255, 0.7);
+            width: 28px;
+            height: 28px;
+            stroke: rgba(255, 255, 255, 0.9);
         }
 
         .glass-popup-text {
-            font-size: 13px;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .glass-popup-subtext {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 8px;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
 
         .glass-ring {
             position: fixed;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 80px;
+            height: 80px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
             border-radius: 50%;
             pointer-events: none;
             z-index: 8999;
@@ -143,7 +161,7 @@
         }
 
         .glass-ring.animate {
-            animation: glassRingExpand 1s ease forwards;
+            animation: glassRingExpand 1.2s ease forwards;
         }
 
         @keyframes glassRingExpand {
@@ -152,7 +170,7 @@
                 opacity: 1;
             }
             100% {
-                transform: translate(-50%, -50%) scale(4);
+                transform: translate(-50%, -50%) scale(5);
                 opacity: 0;
             }
         }
@@ -911,7 +929,8 @@
                     <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
             </div>
-            <div class="glass-popup-text" id="glassPopupText">Click</div>
+            <div class="glass-popup-text" id="glassPopupText">Explore</div>
+            <div class="glass-popup-subtext">Click to interact</div>
         </div>
     </div>
     <div class="glass-ring" id="glassRing"></div>
@@ -1441,21 +1460,28 @@
         let clickTimeout = null;
 
         const clickLabels = {
-            'default': 'Click',
-            'nav': 'Navigate',
-            'button': 'Open Link',
+            'link': 'Navigate',
+            'button': 'Open',
             'project': 'View Project',
-            'service': 'View Details',
+            'service': 'Learn More',
             'form': 'Submit',
-            'social': 'Follow'
+            'cta': 'Take Action',
+            'text': 'Read More',
+            'image': 'View'
         };
 
-        function showGlassPopup(x, y, type = 'default') {
-            glassPopupText.textContent = clickLabels[type] || clickLabels['default'];
+        function showGlassPopup(e, type = 'link') {
+            const x = e.clientX + 50;
+            const y = e.clientY + 50;
+            
+            glassPopupText.textContent = clickLabels[type] || 'Explore';
             glassPopup.style.left = x + 'px';
             glassPopup.style.top = y + 'px';
-            glassPopup.style.transform = 'translate(-50%, -50%) scale(1)';
+            glassPopup.style.opacity = '1';
+            glassPopup.style.transform = 'scale(1) translate(20px, 20px)';
             
+            glassRing.style.width = '80px';
+            glassRing.style.height = '80px';
             glassRing.style.left = x + 'px';
             glassRing.style.top = y + 'px';
             glassRing.classList.remove('animate');
@@ -1463,60 +1489,62 @@
             glassRing.classList.add('animate');
             
             glassActive = true;
+            e.preventDefault();
         }
 
         function hideGlassPopup() {
             if (clickTimeout) clearTimeout(clickTimeout);
-            glassPopup.style.transform = 'translate(-50%, -50%) scale(0)';
+            glassPopup.style.opacity = '0';
+            glassPopup.style.transform = 'scale(0.9) translate(20px, 20px)';
             glassActive = false;
         }
 
-        // Track mouse for glass popup positioning
+        // Track mouse
         let mouseX = 0, mouseY = 0;
         document.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
-            
-            if (!glassActive) {
-                glassPopup.style.left = mouseX + 'px';
-                glassPopup.style.top = mouseY + 'px';
-            }
         });
 
-        // Show glass popup on clickable elements
-        document.querySelectorAll('a, button, .project-card, .service-card, input, textarea, select').forEach(el => {
-            el.addEventListener('mouseenter', () => {
+        // Show glass popup on any interactive element hover
+        const interactiveElements = 'a, button, .project-card, .service-card, input, textarea, select, .nav-links a, .footer-links a, .hero-cta, .submit-btn, h1, h2, h3, p, .service-card h3, .service-card p, .about-content p, .project-title, .project-category';
+        
+        document.querySelectorAll(interactiveElements).forEach(el => {
+            el.addEventListener('mouseenter', (e) => {
                 const rect = el.getBoundingClientRect();
-                showGlassPopup(rect.x + rect.width / 2, rect.y + rect.height / 2, 
-                    el.classList.contains('project-card') ? 'project' :
-                    el.classList.contains('service-card') ? 'service' :
-                    el.tagName === 'A' ? 'nav' :
-                    el.tagName === 'BUTTON' ? 'button' :
-                    el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' ? 'form' : 'default');
+                const centerX = rect.x + rect.width / 2;
+                const centerY = rect.y + rect.height / 2;
+                
+                let type = 'link';
+                if (el.classList.contains('project-card')) type = 'project';
+                else if (el.classList.contains('service-card')) type = 'service';
+                else if (el.classList.contains('hero-cta') || el.classList.contains('submit-btn')) type = 'cta';
+                else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') type = 'form';
+                else if (el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3') type = 'text';
+                else if (el.classList.contains('nav-links') || el.classList.contains('footer-links')) type = 'link';
+                
+                showGlassPopup({ clientX: centerX, clientY: centerY, preventDefault: () => {} }, type);
             });
             
             el.addEventListener('mouseleave', hideGlassPopup);
         });
 
-        // Show glass popup on click
+        // Show glass popup on any click
         document.addEventListener('click', (e) => {
-            if (glassActive) {
-                showGlassPopup(e.clientX, e.clientY, 'button');
-                clickTimeout = setTimeout(hideGlassPopup, 800);
-            }
+            showGlassPopup(e, 'button');
+            clickTimeout = setTimeout(hideGlassPopup, 1000);
         });
 
-        // Initialize glass popup position
-        document.addEventListener('DOMContentLoaded', () => {
-            glassPopup.style.left = '50%';
-            glassPopup.style.top = '50%';
-            glassPopup.style.transform = 'translate(-50%, -50%) scale(0)';
-            
-            // Show on first mouse move
-            document.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-            }, { once: true });
+        // Keep glass popup following cursor when active
+        document.addEventListener('mousemove', (e) => {
+            if (glassActive) {
+                const x = e.clientX + 50;
+                const y = e.clientY + 50;
+                glassPopup.style.left = x + 'px';
+                glassPopup.style.top = y + 'px';
+                glassRing.style.left = x + 'px';
+                glassRing.style.top = y + 'px';
+            }
         });
     </script>
 </body>
