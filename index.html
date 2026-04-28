@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Ayush Bhatnagar | Full Stack Developer & AI Automation Engineer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,6 +35,14 @@
             line-height: 1.6;
             overflow-x: hidden;
             cursor: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        :root {
+            --vh: 1vh;
+            --vw: 1vw;
         }
 
         /* Custom Cursor */
@@ -131,6 +142,78 @@
             color: #000000;
         }
 
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1001;
+            padding: 4px;
+        }
+
+        .mobile-menu-btn span {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: #ffffff;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+
+        .mobile-menu-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-btn.active span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #000000;
+            z-index: 999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .mobile-menu.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu a {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 32px;
+            font-weight: 600;
+            color: #ffffff;
+            text-decoration: none;
+            letter-spacing: -1px;
+            transition: color 0.3s ease;
+        }
+
+        .mobile-menu a:hover {
+            color: #999999;
+        }
+
         /* Hero Section */
         .hero {
             min-height: 100vh;
@@ -140,6 +223,8 @@
             position: relative;
             padding: 120px 60px;
             overflow: hidden;
+            max-width: 1800px;
+            margin: 0 auto;
         }
 
         .hero-bg {
@@ -150,6 +235,7 @@
 
         .hero-content {
             max-width: 900px;
+            width: 100%;
             text-align: center;
             position: relative;
             z-index: 2;
@@ -261,6 +347,13 @@
         .services {
             padding: 150px 60px;
             background: #000000;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
         }
 
         .section-label {
@@ -276,15 +369,12 @@
             font-size: clamp(36px, 5vw, 60px);
             font-weight: 600;
             letter-spacing: -2px;
-            margin-bottom: 60px;
         }
 
         .bento-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
         }
 
         .bento-card {
@@ -323,6 +413,10 @@
             grid-row: span 2;
         }
 
+        .bento-card.wide {
+            grid-column: span 2;
+        }
+
         .bento-number {
             font-size: 12px;
             color: #666666;
@@ -356,6 +450,34 @@
             border-radius: 20px;
             font-size: 12px;
             color: #999999;
+        }
+
+        .service-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .service-list li {
+            color: #999999;
+            font-size: 14px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .service-list li::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #ffffff;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .service-list li:last-child {
+            border-bottom: none;
         }
 
         /* SVG Drawing Animation */
@@ -413,7 +535,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 100px;
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             align-items: center;
         }
@@ -469,6 +591,8 @@
         .work {
             padding: 150px 60px;
             background: #000000;
+            max-width: 1600px;
+            margin: 0 auto;
         }
 
         .projects-grid {
@@ -774,23 +898,165 @@
         }
 
         /* Responsive */
-        @media (max-width: 1024px) {
-            nav { padding: 20px 30px; }
-            .nav-links, .nav-cta { display: none; }
-            .hero, .services, .about, .work, .testimonials, .contact { padding: 100px 30px; }
-            .bento-grid { grid-template-columns: repeat(2, 1fr); }
-            .about { grid-template-columns: 1fr; }
-            .projects-grid { grid-template-columns: 1fr; }
-            .footer-content { grid-template-columns: 1fr 1fr; }
+        @media (max-width: 1800px) {
+            .bento-grid { grid-template-columns: repeat(4, 1fr); }
+            .hero-title { font-size: clamp(48px, 6vw, 90px); }
         }
 
-        @media (max-width: 600px) {
-            .hero-title { font-size: 42px; }
-            .bento-grid { grid-template-columns: 1fr; }
-            .bento-card.large { grid-column: span 1; }
-            .stat-value { font-size: 40px; }
-            .footer-content { grid-template-columns: 1fr; }
-            .footer-bottom { flex-direction: column; gap: 20px; }
+@media (max-width: 1200px) {
+            .services { padding: 120px 50px; }
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+            .bento-card.large { grid-column: span 2; grid-row: span 1; }
+            .section-header { margin-bottom: 50px; }
+        }
+
+        @media (max-width: 1024px) {
+            .hero { padding: 100px 30px; }
+            .hero-title { font-size: clamp(36px, 6vw, 56px); letter-spacing: -2px; }
+            .hero-subtitle { font-size: 16px; max-width: 450px; }
+            .services { padding: 100px 30px; }
+            .bento-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+            .bento-card { padding: 30px; }
+            .bento-card.large { grid-column: span 2; }
+            .bento-card.wide { grid-column: span 2; }
+            .section-title { font-size: clamp(28px, 4vw, 42px); }
+            .about { padding: 100px 30px; grid-template-columns: 1fr; gap: 60px; }
+            .about-stats { gap: 40px; }
+            .stat-value { font-size: 48px; }
+            .about-visual { height: 400px; }
+            .work { padding: 100px 30px; }
+            .projects-grid { grid-template-columns: 1fr; gap: 20px; }
+            .project-card { height: 380px; }
+            .footer-content { grid-template-columns: repeat(2, 1fr); gap: 40px; }
+            nav { padding: 20px 30px; }
+            .nav-links, .nav-cta { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .services { padding: 80px 24px; }
+            .bento-grid { grid-template-columns: 1fr; gap: 16px; }
+            .bento-card.large, .bento-card.wide { grid-column: span 1; }
+            .bento-card { padding: 24px; border-radius: 16px; }
+            .bento-card h3 { font-size: 20px; }
+            .bento-card p { font-size: 14px; }
+            .bento-number { font-size: 11px; margin-bottom: 12px; }
+            .service-list li { font-size: 13px; padding: 6px 0; }
+            .section-header { margin-bottom: 40px; }
+            .section-label { font-size: 10px; margin-bottom: 12px; }
+            .section-title { font-size: clamp(24px, 5vw, 32px); }
+            .bento-tech { margin-top: 16px; }
+            .tech-tag { padding: 4px 10px; font-size: 11px; }
+        }
+
+@media (max-width: 600px) {
+            .hero { padding: 80px 20px; min-height: 90vh; }
+            .hero-title { font-size: clamp(26px, 8vw, 36px); letter-spacing: -1px; }
+            .hero-subtitle { font-size: 14px; margin-bottom: 28px; }
+            .hero-cta { padding: 14px 32px; font-size: 13px; }
+            .services, .about, .work, .testimonials, .contact { padding: 60px 20px; }
+            .section-title { font-size: clamp(22px, 5vw, 28px); margin-bottom: 30px; }
+            .section-label { font-size: 10px; }
+            .bento-card { padding: 20px; border-radius: 16px; }
+            .bento-number { margin-bottom: 12px; }
+            .bento-card h3 { font-size: 18px; margin-bottom: 12px; }
+            .bento-card p { font-size: 14px; }
+            .bento-tech { margin-top: 12px; }
+            .tech-tag { padding: 4px 10px; font-size: 11px; }
+            .about-content h2 { font-size: clamp(20px, 5vw, 26px); }
+            .about-content p { font-size: 14px; }
+            .about-stats { gap: 24px; margin-top: 30px; }
+            .stat-value { font-size: 32px; }
+            .about-visual { height: 250px; }
+            .projects-grid { gap: 16px; }
+            .project-card { height: 280px; border-radius: 16px; }
+            .project-info { padding: 20px; }
+            .project-number { font-size: 10px; margin-bottom: 8px; }
+            .project-title { font-size: 18px; }
+            .project-category { font-size: 11px; }
+            .testimonial-slider { margin-top: 40px; }
+            .testimonial blockquote { font-size: clamp(16px, 4vw, 20px); margin-bottom: 24px; }
+            .testimonial-author { font-size: 14px; }
+            .testimonial-role { font-size: 11px; }
+            .testimonial-dots { margin-top: 30px; gap: 8px; }
+            .contact h2 { font-size: clamp(22px, 5vw, 28px); }
+            .contact p { font-size: 14px; margin-bottom: 30px; }
+            .form-group input, .form-group textarea { padding: 12px 0; font-size: 14px; }
+            .submit-btn { padding: 14px 36px; font-size: 13px; }
+            footer { padding: 50px 20px 20px; }
+            .footer-content { grid-template-columns: 1fr; gap: 30px; }
+            .footer-bottom { flex-direction: column; gap: 16px; align-items: center; text-align: center; }
+            .social-links { justify-content: center; }
+            .scroll-indicator { bottom: 24px; }
+            .scroll-mouse { width: 20px; height: 32px; }
+            .tech-stack { padding: 60px 0; }
+            .tech-item { font-size: 24px; }
+            .marquee-content { gap: 30px; padding: 0 30px; }
+        }
+
+        @media (max-width: 400px) {
+            .hero-title { font-size: 26px; }
+            .hero-subtitle { font-size: 13px; }
+            .section-title { font-size: 22px; }
+            .stat-value { font-size: 28px; }
+            .project-card { height: 250px; }
+            .bento-card { padding: 16px; }
+            .about-visual { height: 200px; }
+        }
+
+        /* High DPI Displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .cursor, .cursor-follower { -webkit-transform: translate(-50%, -50%) scale(0.75); transform: translate(-50%, -50%) scale(0.75); }
+        }
+
+        /* Foldable Devices - unfolded tablet */
+        @media (min-width: 768px) and (max-width: 1024px) and (min-height: 550px) {
+            .hero { min-height: 80vh; }
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Landscape mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .hero { min-height: auto; padding: 80px 40px; }
+            .hero-content { margin-top: 40px; }
+            .scroll-indicator { display: none; }
+            .hero-title { font-size: clamp(24px, 5vw, 36px); }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 320px) {
+            html { font-size: 14px; }
+            .hero-title { font-size: 22px; }
+            .bento-card, .project-card { padding: 12px; }
+        }
+
+        /* Reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .marquee-track { animation: none; }
+            .kinetic-text { transform: none !important; }
+        }
+
+        /* Dark mode (force dark anyway) */
+        @media (prefers-color-scheme: light) {
+            body { background: #000000; color: #ffffff; }
+        }
+
+        /* Touch devices */
+        @media (hover: none) and (pointer: coarse) {
+            .cursor, .cursor-follower { display: none; }
+            body { cursor: auto; }
+            .project-card, .bento-card { -webkit-tap-highlight-color: transparent; }
+            .magnetic:active { transform: scale(0.98); }
+        }
+
+        /* Print styles */
+        @media print {
+            .cursor, .cursor-follower, .scroll-indicator, .hero-bg { display: none; }
+            body { background: white; color: black; }
         }
     </style>
 </head>
@@ -807,7 +1073,19 @@
             <li><a href="#contact">Contact</a></li>
         </ul>
         <a href="#contact" class="nav-cta magnetic">Let's Talk</a>
+        <button class="mobile-menu-btn" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
     </nav>
+
+    <div class="mobile-menu">
+        <a href="#services">Services</a>
+        <a href="#about">About</a>
+        <a href="#work">Work</a>
+        <a href="#contact">Contact</a>
+    </div>
 
     <section class="hero">
         <div class="hero-bg parallax-layer parallax-bg"></div>
@@ -852,8 +1130,10 @@
     </div>
 
     <section class="services" id="services">
-        <div class="section-label">Services</div>
-        <h2 class="section-title">What I Do</h2>
+        <div class="section-header">
+            <div class="section-label">Services</div>
+            <h2 class="section-title">What I Do</h2>
+        </div>
         
         <div class="bento-grid">
             <div class="bento-card large reveal">
@@ -862,47 +1142,119 @@
                     <path d="M8 24L24 8L40 24L24 40Z" stroke="white" stroke-width="2"/>
                 </svg>
                 <h3>Web Development</h3>
-                <p>Full-stack web applications built with modern frameworks. From concept to deployment, creating seamless digital experiences that captivate and convert.</p>
+                <p>Full-stack web applications built with modern frameworks. From concept to deployment, creating seamless digital experiences.</p>
+                <ul class="service-list">
+                    <li>Custom Website Development</li>
+                    <li>Progressive Web Apps (PWA)</li>
+                    <li>E-commerce Solutions</li>
+                    <li>SaaS Platforms</li>
+                    <li>CMS Integration</li>
+                    <li>API Development</li>
+                </ul>
                 <div class="bento-tech">
                     <span class="tech-tag">React</span>
+                    <span class="tech-tag">Next.js</span>
                     <span class="tech-tag">Node.js</span>
                     <span class="tech-tag">TypeScript</span>
                 </div>
             </div>
             <div class="bento-card reveal">
                 <span class="bento-number">02</span>
+                <svg class="service-icon" viewBox="0 0 48 48" fill="none">
+                    <circle cx="24" cy="24" r="16" stroke="white" stroke-width="2"/>
+                    <circle cx="24" cy="24" r="6" stroke="white" stroke-width="2"/>
+                </svg>
                 <h3>AI Automation</h3>
-                <p>Intelligent automation solutions powered by AI.</p>
+                <p>Intelligent automation solutions powered by cutting-edge AI.</p>
+                <ul class="service-list">
+                    <li>AI Chatbots</li>
+                    <li>Process Automation</li>
+                    <li>Machine Learning</li>
+                    <li>Data Analytics</li>
+                </ul>
                 <div class="bento-tech">
                     <span class="tech-tag">Python</span>
                     <span class="tech-tag">OpenAI</span>
+                    <span class="tech-tag">LangChain</span>
                 </div>
             </div>
             <div class="bento-card reveal">
                 <span class="bento-number">03</span>
+                <svg class="service-icon" viewBox="0 0 48 48" fill="none">
+                    <path d="M24 4L40 40L8 40L24 4Z" stroke="white" stroke-width="2"/>
+                </svg>
                 <h3>3D Experiences</h3>
-                <p>Immersive WebGL experiences.</p>
+                <p>Immersive WebGL experiences that captivate users.</p>
+                <ul class="service-list">
+                    <li>Interactive 3D</li>
+                    <li>Product Visualizers</li>
+                    <li>Virtual Tours</li>
+                    <li>WebGL Games</li>
+                </ul>
                 <div class="bento-tech">
                     <span class="tech-tag">Three.js</span>
                     <span class="tech-tag">WebGL</span>
+                    <span class="tech-tag">Blender</span>
                 </div>
             </div>
             <div class="bento-card reveal">
                 <span class="bento-number">04</span>
+                <svg class="service-icon" viewBox="0 0 48 48" fill="none">
+                    <rect x="8" y="16" width="32" height="20" stroke="white" stroke-width="2"/>
+                    <path d="M16 16V12H32V16" stroke="white" stroke-width="2"/>
+                </svg>
                 <h3>Cloud Solutions</h3>
-                <p>Scalable cloud architecture.</p>
+                <p>Scalable cloud architecture for modern apps.</p>
+                <ul class="service-list">
+                    <li>AWS Solutions</li>
+                    <li>Cloud Migration</li>
+                    <li>Serverless Apps</li>
+                    <li>DevOps/CI/CD</li>
+                </ul>
                 <div class="bento-tech">
                     <span class="tech-tag">AWS</span>
                     <span class="tech-tag">GCP</span>
+                    <span class="tech-tag">Docker</span>
                 </div>
             </div>
             <div class="bento-card reveal">
                 <span class="bento-number">05</span>
-                <h3>API Development</h3>
-                <p>Robust and scalable APIs.</p>
+                <svg class="service-icon" viewBox="0 0 48 48" fill="none">
+                    <path d="M8 24H40" stroke="white" stroke-width="2"/>
+                    <path d="M24 8V40" stroke="white" stroke-width="2"/>
+                    <circle cx="24" cy="24" r="4" stroke="white" stroke-width="2"/>
+                </svg>
+                <h3>UI/UX Design</h3>
+                <p>Beautiful, intuitive interfaces.</p>
+                <ul class="service-list">
+                    <li>Responsive Design</li>
+                    <li>Design Systems</li>
+                    <li>Animations</li>
+                    <li>Prototyping</li>
+                </ul>
                 <div class="bento-tech">
-                    <span class="tech-tag">REST</span>
-                    <span class="tech-tag">GraphQL</span>
+                    <span class="tech-tag">Figma</span>
+                    <span class="tech-tag">GSAP</span>
+                    <span class="tech-tag">Framer</span>
+                </div>
+            </div>
+            <div class="bento-card reveal">
+                <span class="bento-number">06</span>
+                <svg class="service-icon" viewBox="0 0 48 48" fill="none">
+                    <path d="M8 40L16 24L24 32L32 16L40 8" stroke="white" stroke-width="2"/>
+                </svg>
+                <h3>Mobile Apps</h3>
+                <p>Native and cross-platform mobile solutions.</p>
+                <ul class="service-list">
+                    <li>iOS Development</li>
+                    <li>Android Apps</li>
+                    <li>React Native</li>
+                    <li>App Store SEO</li>
+                </ul>
+                <div class="bento-tech">
+                    <span class="tech-tag">Swift</span>
+                    <span class="tech-tag">Kotlin</span>
+                    <span class="tech-tag">React Native</span>
                 </div>
             </div>
         </div>
@@ -1129,6 +1481,36 @@
             else nav.classList.remove('scrolled');
         });
 
+        // Mobile menu toggle
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenuBtn.classList.toggle('active');
+                mobileMenu.classList.toggle('active');
+                document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+            });
+            
+            // Close menu on link click
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenuBtn.classList.remove('active');
+                    mobileMenu.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            });
+            
+            // Close menu on resize to desktop
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    mobileMenuBtn.classList.remove('active');
+                    mobileMenu.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
         // Hero Title Animation
         const title = document.getElementById('heroTitle');
         const words = title.querySelectorAll('span');
@@ -1168,7 +1550,7 @@
             });
         });
 
-        // Hero 3D Background
+// Hero 3D Background
         const heroCanvas = document.getElementById('heroCanvas');
         if (heroCanvas) {
             const scene = new THREE.Scene();
@@ -1211,11 +1593,23 @@
             }
             animate();
 
-            window.addEventListener('resize', () => {
-                camera.aspect = heroCanvas.offsetWidth / heroCanvas.offsetHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(heroCanvas.offsetWidth, heroCanvas.offsetHeight);
-            });
+            // Device pixel ratio handling for sharp rendering
+            const updateDevicePixelRatio = () => {
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            };
+
+            // Debounced resize with proper Three.js cleanup and reinit
+            const debouncedResize = () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    camera.aspect = heroCanvas.offsetWidth / heroCanvas.offsetHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(heroCanvas.offsetWidth, heroCanvas.offsetHeight);
+                    updateDevicePixelRatio();
+                }, 150);
+            };
+            
+            window.addEventListener('resize', debouncedResize);
         }
 
         // About 3D
@@ -1226,6 +1620,7 @@
             const renderer = new THREE.WebGLRenderer({ canvas: aboutCanvas, alpha: true, antialias: true });
             
             renderer.setSize(aboutCanvas.offsetWidth, aboutCanvas.offsetHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
             const geometry = new THREE.IcosahedronGeometry(1.5, 0);
             const material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.3 });
@@ -1241,6 +1636,20 @@
                 renderer.render(scene, camera);
             }
             animate();
+
+            // Responsive handling for about canvas
+            let aboutResizeTimeout;
+            const handleAboutResize = () => {
+                clearTimeout(aboutResizeTimeout);
+                aboutResizeTimeout = setTimeout(() => {
+                    camera.aspect = aboutCanvas.offsetWidth / aboutCanvas.offsetHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(aboutCanvas.offsetWidth, aboutCanvas.offsetHeight);
+                    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                }, 150);
+            };
+            
+            window.addEventListener('resize', handleAboutResize);
         }
 
         // Scroll Reveal
