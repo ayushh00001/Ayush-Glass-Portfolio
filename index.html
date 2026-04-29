@@ -11,7 +11,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
     :root {
         --bg: #000000;
@@ -613,140 +612,173 @@
     </footer>
 
     <script>
-    gsap.registerPlugin(ScrollTrigger);
+    document.addEventListener('DOMContentLoaded', function() {
+        gsap.registerPlugin(ScrollTrigger);
 
-    // Supabase setup
+        // Mobile menu
+        document.querySelector('.menu-btn').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.querySelector('.menu-btn').classList.remove('active');
+                document.querySelector('.nav-links').classList.remove('active');
+            });
+        });
+
+        // Hero 3D
+        const heroCanvas = document.getElementById('heroCanvas');
+        if (heroCanvas && typeof THREE !== 'undefined') {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: heroCanvas, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const geometry = new THREE.BufferGeometry();
+            const count = 200;
+            const positions = new Float32Array(count * 3);
+            for (let i = 0; i < count * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 10;
+                positions[i + 1] = (Math.random() - 0.5) * 10;
+                positions[i + 2] = (Math.random() - 0.5) * 10;
+            }
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.02, transparent: true, opacity: 0.5 });
+            const particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+            camera.position.z = 5;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                particles.rotation.x += 0.001;
+                particles.rotation.y += 0.001;
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        // About 3D
+        const aboutCanvas = document.getElementById('aboutCanvas');
+        if (aboutCanvas && typeof THREE !== 'undefined') {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: aboutCanvas, alpha: true });
+            const width = aboutCanvas.offsetWidth || 300;
+            const height = aboutCanvas.offsetHeight || 300;
+            renderer.setSize(width, height);
+
+            const geometry = new THREE.IcosahedronGeometry(1, 0);
+            const material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.3 });
+            const shape = new THREE.Mesh(geometry, material);
+            scene.add(shape);
+            camera.position.z = 3;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                shape.rotation.x += 0.005;
+                shape.rotation.y += 0.008;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        // Scroll animations
+        gsap.utils.toArray('.card').forEach((card, i) => {
+            gsap.from(card, {
+                scrollTrigger: { trigger: card, start: 'top 85%' },
+                y: 30,
+                opacity: 0,
+                duration: 0.6,
+                delay: i * 0.1
+            });
+        });
+
+        gsap.utils.toArray('.project-card').forEach((card, i) => {
+            gsap.from(card, {
+                scrollTrigger: { trigger: card, start: 'top 85%' },
+                y: 30,
+                opacity: 0,
+                duration: 0.6,
+                delay: i * 0.1
+            });
+        });
+    });
+
+    // Lazy-load Supabase for contact form
     const SUPABASE_URL = 'https://zueuaugarutmtemsrfvo.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1ZXVhdWdhcnV0bXRlbXNyZnZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NzIwMjAsImV4cCI6MjA5MzA0ODAyMH0.b3I3zm5PLpesLbBsyO2ucxoLJmz5MqrePTghfLX_DuY';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let supabaseClient = null;
 
-    // Contact form submission
-    document.getElementById('contactForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const submitBtn = document.getElementById('submitBtn');
-        const formMessage = document.getElementById('formMessage');
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const message = document.getElementById('message').value.trim();
-        
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Sending...';
-        formMessage.className = 'form-message';
-        
-        const { data, error } = await supabase
-            .from('contact_queries')
-            .insert([{ name, email, message }]);
-        
-        if (error) {
-            formMessage.className = 'form-message error';
-            formMessage.textContent = 'Something went wrong. Please try again.';
-            console.error('Supabase error:', error);
-        } else {
-            formMessage.className = 'form-message success';
-            formMessage.textContent = 'Message sent successfully! I\'ll get back to you soon.';
-            document.getElementById('contactForm').reset();
-        }
-        
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Send Message';
-    });
-
-    // Mobile menu
-    document.querySelector('.menu-btn').addEventListener('click', function() {
-        this.classList.toggle('active');
-        document.querySelector('.nav-links').classList.toggle('active');
-    });
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', () => {
-            document.querySelector('.menu-btn').classList.remove('active');
-            document.querySelector('.nav-links').classList.remove('active');
-        });
-    });
-
-    // Hero 3D
-    const heroCanvas = document.getElementById('heroCanvas');
-    if (heroCanvas) {
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: heroCanvas, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-        const geometry = new THREE.BufferGeometry();
-        const count = 200;
-        const positions = new Float32Array(count * 3);
-        for (let i = 0; i < count * 3; i += 3) {
-            positions[i] = (Math.random() - 0.5) * 10;
-            positions[i + 1] = (Math.random() - 0.5) * 10;
-            positions[i + 2] = (Math.random() - 0.5) * 10;
-        }
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        const material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.02, transparent: true, opacity: 0.5 });
-        const particles = new THREE.Points(geometry, material);
-        scene.add(particles);
-        camera.position.z = 5;
-
-        function animate() {
-            requestAnimationFrame(animate);
-            particles.rotation.x += 0.001;
-            particles.rotation.y += 0.001;
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+    function getSupabase() {
+        if (supabaseClient) return Promise.resolve(supabaseClient);
+        return new Promise(function(resolve, reject) {
+            if (window.supabase && window.supabase.createClient) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                resolve(supabaseClient);
+                return;
+            }
+            var script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+            script.type = 'module';
+            script.onload = function() {
+                resolve(null);
+            };
+            script.onerror = function() { reject(new Error('Failed to load Supabase')); };
+            document.head.appendChild(script);
+            setTimeout(function() {
+                if (window.supabase && window.supabase.createClient) {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    resolve(supabaseClient);
+                } else {
+                    reject(new Error('Supabase not available'));
+                }
+            }, 5000);
         });
     }
 
-    // About 3D
-    const aboutCanvas = document.getElementById('aboutCanvas');
-    if (aboutCanvas) {
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: aboutCanvas, alpha: true });
-        const width = aboutCanvas.offsetWidth || 300;
-        const height = aboutCanvas.offsetHeight || 300;
-        renderer.setSize(width, height);
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-        const geometry = new THREE.IcosahedronGeometry(1, 0);
-        const material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.3 });
-        const shape = new THREE.Mesh(geometry, material);
-        scene.add(shape);
-        camera.position.z = 3;
+            const submitBtn = document.getElementById('submitBtn');
+            const formMessage = document.getElementById('formMessage');
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const message = document.getElementById('message').value.trim();
 
-        function animate() {
-            requestAnimationFrame(animate);
-            shape.rotation.x += 0.005;
-            shape.rotation.y += 0.008;
-            renderer.render(scene, camera);
-        }
-        animate();
-    }
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+            formMessage.className = 'form-message';
 
-    // Scroll animations
-    gsap.utils.toArray('.card').forEach((card, i) => {
-        gsap.from(card, {
-            scrollTrigger: { trigger: card, start: 'top 85%' },
-            y: 30,
-            opacity: 0,
-            duration: 0.6,
-            delay: i * 0.1
-        });
-    });
+            try {
+                const supabase = await getSupabase();
+                const { error } = await supabase
+                    .from('contact_queries')
+                    .insert([{ name, email, message }]);
 
-    gsap.utils.toArray('.project-card').forEach((card, i) => {
-        gsap.from(card, {
-            scrollTrigger: { trigger: card, start: 'top 85%' },
-            y: 30,
-            opacity: 0,
-            duration: 0.6,
-            delay: i * 0.1
+                if (error) throw error;
+                formMessage.className = 'form-message success';
+                formMessage.textContent = 'Message sent successfully! I\'ll get back to you soon.';
+                document.getElementById('contactForm').reset();
+            } catch (err) {
+                formMessage.className = 'form-message error';
+                formMessage.textContent = 'Something went wrong. Please try again.';
+                console.error('Supabase error:', err);
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Message';
         });
     });
     </script>
 </body>
 </html>
+
