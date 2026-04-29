@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
     :root {
         --bg: #000000;
@@ -19,6 +20,8 @@
         --text-dim: #666666;
         --card-bg: #0a0a0a;
         --border: rgba(255,255,255,0.08);
+        --success: #22c55e;
+        --error: #ef4444;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -279,6 +282,10 @@
         outline: none;
         border-color: var(--text);
     }
+    .form-group input:invalid:not(:placeholder-shown),
+    .form-group textarea:invalid:not(:placeholder-shown) {
+        border-color: var(--error);
+    }
     .submit-btn {
         display: inline-block;
         width: 100%;
@@ -290,6 +297,31 @@
         border: none;
         border-radius: 8px;
         cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    .submit-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    .form-message {
+        display: none;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 12px;
+        font-size: 14px;
+        text-align: center;
+    }
+    .form-message.success {
+        display: block;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        color: var(--success);
+    }
+    .form-message.error {
+        display: block;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: var(--error);
     }
     
     /* Footer */
@@ -528,20 +560,21 @@
             <h2 class="section-title">Let's Create Something Extraordinary.</h2>
             <p>I'd love to hear about your project.</p>
             
-            <form class="contact-form">
+            <form class="contact-form" id="contactForm">
                 <div class="form-group">
                     <label>Your Name</label>
-                    <input type="text" required>
+                    <input type="text" id="name" name="name" required placeholder="John Doe">
                 </div>
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" required>
+                    <input type="email" id="email" name="email" required placeholder="john@example.com">
                 </div>
                 <div class="form-group">
                     <label>Tell me about your project</label>
-                    <textarea rows="4" required></textarea>
+                    <textarea id="message" name="message" rows="4" required placeholder="I need a website for my business..."></textarea>
                 </div>
-                <button type="submit" class="submit-btn">Send Message</button>
+                <button type="submit" class="submit-btn" id="submitBtn">Send Message</button>
+                <div class="form-message" id="formMessage"></div>
             </form>
         </div>
     </section>
@@ -581,6 +614,43 @@
 
     <script>
     gsap.registerPlugin(ScrollTrigger);
+
+    // Supabase setup
+    const SUPABASE_URL = 'https://zueuaugarutmtemsrfvo.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1ZXVhdWdhcnV0bXRlbXNyZnZvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzQ3MjAyMCwiZXhwIjoyMDkzMDQ4MDIwfQ.LAZcPk8lnrW_zuuPvrtFB4kg_En-uSksattWWTLvGvo';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Contact form submission
+    document.getElementById('contactForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const formMessage = document.getElementById('formMessage');
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const message = document.getElementById('message').value.trim();
+        
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        formMessage.className = 'form-message';
+        
+        const { data, error } = await supabase
+            .from('contact_queries')
+            .insert([{ name, email, message }]);
+        
+        if (error) {
+            formMessage.className = 'form-message error';
+            formMessage.textContent = 'Something went wrong. Please try again.';
+            console.error('Supabase error:', error);
+        } else {
+            formMessage.className = 'form-message success';
+            formMessage.textContent = 'Message sent successfully! I\'ll get back to you soon.';
+            document.getElementById('contactForm').reset();
+        }
+        
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+    });
 
     // Mobile menu
     document.querySelector('.menu-btn').addEventListener('click', function() {
