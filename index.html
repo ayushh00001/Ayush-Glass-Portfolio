@@ -712,37 +712,8 @@
         });
     });
 
-    // Lazy-load Supabase for contact form
     const SUPABASE_URL = 'https://zueuaugarutmtemsrfvo.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1ZXVhdWdhcnV0bXRlbXNyZnZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NzIwMjAsImV4cCI6MjA5MzA0ODAyMH0.b3I3zm5PLpesLbBsyO2ucxoLJmz5MqrePTghfLX_DuY';
-    let supabaseClient = null;
-
-    function getSupabase() {
-        if (supabaseClient) return Promise.resolve(supabaseClient);
-        return new Promise(function(resolve, reject) {
-            if (window.supabase && window.supabase.createClient) {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                resolve(supabaseClient);
-                return;
-            }
-            var script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-            script.type = 'module';
-            script.onload = function() {
-                resolve(null);
-            };
-            script.onerror = function() { reject(new Error('Failed to load Supabase')); };
-            document.head.appendChild(script);
-            setTimeout(function() {
-                if (window.supabase && window.supabase.createClient) {
-                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                    resolve(supabaseClient);
-                } else {
-                    reject(new Error('Supabase not available'));
-                }
-            }, 5000);
-        });
-    }
 
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('contactForm').addEventListener('submit', async function(e) {
@@ -759,12 +730,22 @@
             formMessage.className = 'form-message';
 
             try {
-                const supabase = await getSupabase();
-                const { error } = await supabase
-                    .from('contact_queries')
-                    .insert([{ name, email, message }]);
+                const res = await fetch(SUPABASE_URL + '/rest/v1/contact_queries', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ name: name, email: email, message: message })
+                });
 
-                if (error) throw error;
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.message || 'Request failed');
+                }
+
                 formMessage.className = 'form-message success';
                 formMessage.textContent = 'Message sent successfully! I\'ll get back to you soon.';
                 document.getElementById('contactForm').reset();
@@ -781,4 +762,5 @@
     </script>
 </body>
 </html>
+
 
